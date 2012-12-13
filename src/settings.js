@@ -309,6 +309,8 @@ var DEBUG_TAGS_SHOWING = [];
   //    metadata
   //    legalizer
 
+//use 64-bit file offsets to support large files
+var LARGE64_FILES = 1;
 
 // A cached set of defines, generated from the header files. This
 // lets the emscripten libc (library.js) see the right values.

@@ -1624,6 +1624,10 @@ var i64Math = (function() { // Emscripten wrapper
         ret = ret.toString(10);
       }
       return ret;
+    },
+    splitBigInt : function(n) {
+        var bg = new goog.math.Long.fromNumber(n);
+        return [bg.getLowBits(), bg.getHighBits()];
     }
   };
   return Wrapper;

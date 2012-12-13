@@ -13,7 +13,11 @@
 #include <sys/lock.h>
 
 #ifndef __off_t_defined
+#ifndef __SMALL32_FILES
+typedef __int64_t _off_t;
+#else
 typedef long _off_t;
+#endif
 #endif
 
 #if defined(__rtems__)
@@ -33,7 +37,11 @@ typedef unsigned __gid_t; /* XXX Emscripten */
 #endif
 
 #ifndef __off64_t_defined
+#ifdef __SMALL32_FILES
+typedef __uint64_t  _off64_t; /* XXX Emscripten */
+#else
 __extension__ typedef unsigned _off64_t; /* XXX Emscripten */
+#endif
 #endif
 
 /*
@@ -45,7 +53,7 @@ typedef long _fpos_t;		/* XXX must match off_t in <sys/types.h> */
 				/* (and must be `long' for now) */
 #endif
 
-#ifdef __LARGE64_FILES
+#ifdef __SMALL32_FILES
 #ifndef __fpos64_t_defined
 typedef _off64_t _fpos64_t;
 #endif

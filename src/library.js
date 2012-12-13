@@ -1647,11 +1647,18 @@ LibraryManager.library = {
     }
   },
   lseek__deps: ['$FS', '__setErrNo', '$ERRNO_CODES'],
+#if LARGE64_FILES
+  lseek: function(fildes, offsetLow, offsetHigh, whence) {
+#else
   lseek: function(fildes, offset, whence) {
+#endif
     // off_t lseek(int fildes, off_t offset, int whence);
     // http://pubs.opengroup.org/onlinepubs/000095399/functions/lseek.html
     if (FS.streams[fildes] && !FS.streams[fildes].object.isDevice) {
       var stream = FS.streams[fildes];
+#if LARGE64_FILES
+      var offset = Runtime.makeBigInt(offsetLow, offsetHigh, false);
+#endif
       var position = offset;
       if (whence === 1) {  // SEEK_CUR.
         position += stream.position;
@@ -1664,7 +1671,12 @@ LibraryManager.library = {
       } else {
         stream.ungotten = [];
         stream.position = position;
+#if LARGE64_FILES
+        var ret = i64Math.splitBigInt(position);
+        return ret;
+#else
         return position;
+#endif
       }
     } else {
       ___setErrNo(ERRNO_CODES.EBADF);
@@ -1681,7 +1693,11 @@ LibraryManager.library = {
     return -1;
   },
   pread__deps: ['$FS', '__setErrNo', '$ERRNO_CODES'],
+#if LARGE64_FILES
+  pread: function(fildes, buf, nbyte, offsetLow, offsetHigh) {
+#else
   pread: function(fildes, buf, nbyte, offset) {
+#endif
     // ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset);
     // http://pubs.opengroup.org/onlinepubs/000095399/functions/read.html
     var stream = FS.streams[fildes];
@@ -1699,6 +1715,9 @@ LibraryManager.library = {
       return -1;
     } else {
       var bytesRead = 0;
+#if LARGE64_FILES
+      var offset = Runtime.makeBigInt(offsetLow, offsetHigh, false);
+#endif
       while (stream.ungotten.length && nbyte > 0) {
         {{{ makeSetValue('buf++', '0', 'stream.ungotten.pop()', 'i8') }}}
         nbyte--;
